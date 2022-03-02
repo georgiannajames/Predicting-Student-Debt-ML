@@ -32,7 +32,7 @@ devtools::install_github("uc-cfss/rcfss")
 
 ##  Summary
 
-Median student debt has increased substaintially overtime. In part one, I create several machine learning models that predict ```debt``` as a function of all the other variables in the  ```rcfss::scorecard``` data set, which reports the median debt of students after leaving school in 2019 along with a variety of other related variables. I measured the performance of each model using root mean standard error, which is a measure of how concentrated the predictions are around the line of best fit.
+Median student debt has increased substaintially overtime. In this repo, I create several machine learning models that predict ```debt``` as a function of all the other variables in the  ```rcfss::scorecard``` data set, which reports the median debt of students after leaving school in 2019 along with a variety of other related variables. I measured the performance of each model using root mean standard error, which is a measure of how concentrated the predictions are around the line of best fit.
 
 * [Student Debt R Markdown file](./student_debt.Rmd)
-* [Part 1 Markdown file](./student_debt.md)
+* [Student Debt Markdown file](./student_debt.md)
