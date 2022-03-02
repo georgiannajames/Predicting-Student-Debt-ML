@@ -1,0 +1,154 @@
+---
+title: "Predicting Student Debt"
+author: "Georgianna James"
+date: '2022-03-02'
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Required Packages
+
+```{r packages, message=FALSE}
+library(rcfss)
+library(tidyverse)
+library(tidymodels)
+library(rsample)
+library(knitr)
+
+theme_set(theme_minimal())
+set.seed(100)
+```
+
+
+
+## Load the data
+```{r load data}
+rcfss::scorecard
+```
+
+
+
+### Creating traning and testing sets
+
+```{r q1 split data}
+
+# split data into train and test
+
+scorecard_split <- initial_split(scorecard, prop = 3 / 4)
+scorecard_train <- training(scorecard_split)
+scorecard_test <- testing(scorecard_split)
+```
+
+
+# Linear Regression Model
+
+```{r q2 lm mod}
+
+# build linear regression model
+
+lm_mod <- linear_reg() %>%
+  set_engine(engine = "lm") %>%
+  set_mode(mode = "regression")
+
+
+lm_mod
+```
+```{r q2 lm fit}
+
+# fit the model
+
+lm_fit <- lm_mod %>%
+  fit(debt ~ type + admrate + satavg + cost + netcost + avgfacsal + pctpell + comprate + firstgen + locale, data = scorecard) %>%
+  predict(new_data = scorecard_test) %>%
+  mutate(true_scorecard = scorecard_test$debt)
+```
+
+## Linear Regression Metrics Table
+
+```{r q2 rmse visualize, echo=FALSE}
+
+# calculate rmse of model
+
+
+rmse <- rmse(lm_fit, true_scorecard, .pred, na_rm = TRUE)
+
+kable(rmse, col.names = c("Metric", "Estimator", "Estimate"))
+```
+
+
+
+Using a linear model to predict student debt, we get a root mean square error of 3062.022. 
+
+
+# Linear Regression Model with 10-fold Cross Validation
+
+
+
+```{r q3 set folds }
+
+# creating folds
+
+scorecard_fold <- vfold_cv(data = scorecard_train, v = 10)
+
+scorecard_fold
+```
+
+
+```{r q3 cross validation }
+
+# refitting model to samples and collecting metrics
+
+scorecard_fold_pred <- lm_mod %>%
+  fit_resamples(debt ~ type + admrate + satavg + cost + netcost + avgfacsal + pctpell + comprate + firstgen + locale, resamples = scorecard_fold) %>%
+  collect_metrics()
+```
+
+## Linear Regression Model with 10-fold Cross Validation Metrics Table 
+
+```{r q3 visualize}
+kable(scorecard_fold_pred, col.names = c("Metric", "Estimator", "Mean", "n", "Standard Error", "Config"))
+```
+
+
+
+Predicting student debt using a 10-fold cross validation, you get an rmse of 3110.07. 
+
+
+# Decicion Tree Model
+
+```{r q4 tree model}
+tree_mod <- decision_tree() %>%
+  set_engine("rpart") %>%
+  set_mode("regression")
+```
+
+## Decision Tree Metrics Table 
+
+```{r q4 tree prediction}
+tree_pred <- tree_mod %>%
+  fit_resamples(debt ~ type + admrate + satavg + cost + netcost + avgfacsal + pctpell + comprate + firstgen + locale, resamples = scorecard_fold) %>%
+  collect_metrics()
+
+
+
+kable(tree_pred, col.names = c("Metric", "Estimator", "Mean", "n", "Standard Error", "Config"))
+```
+
+
+
+Predicting student debt using a decision tree model, you get an rmse of 3476.96
+
+# Conclusion
+
+In this file, I have predicted student debt using three different machine learning models, reporting my results in root mean standard error, which is a measure of how concentrated the predictions are around the line of best fit. The models resulted in the following results: 
+
+* Linear regression model: ```rmse``` = 3062.022
+* Linear regression model with 10-fold cross validation: ```rmse``` = 3110.07
+* Decision tree model: ```rmse``` = 3476.96
+
+The basic linear regression model resulted in the lowest ```rmse``` value of 3062.02
