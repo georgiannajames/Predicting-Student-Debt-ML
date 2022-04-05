@@ -2,7 +2,7 @@
 title: "Predicting Student Debt"
 author: "Georgianna James"
 date: '2022-03-02'
-output: html_document
+output: github_document
 ---
 
 
